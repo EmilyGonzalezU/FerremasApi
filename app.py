@@ -7,10 +7,10 @@ import os
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
-password = "Contrasena123."
-encoded_password = quote_plus(password)  
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{encoded_password}@localhost/productosdb'
-app.config['SECRET_KEY'] = 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:Contrasena123.@localhost/productosdb')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'tu-clave-secreta-local') 
+
 db.init_app(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -159,6 +159,6 @@ def registrar():
     db.session.commit()
     return jsonify({"mensaje": "Usuario creado correctamente"})
 
-
+# Elimina el debug en producción
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run()
