@@ -8,8 +8,8 @@ from urllib.parse import quote_plus
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:Contrasena123.@localhost/productosdb')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'tu-clave-secreta-local') 
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 db.init_app(app)
 bcrypt = Bcrypt(app)

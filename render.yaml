@@ -2,15 +2,12 @@ services:
   - type: web
     name: flask-api-productos
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: productosdb
-          property: connectionString
+        value: postgresql://emily:M3pJQve7gxnKEoWqHZfpo0AE5XyrW0ix@dpg-d0lbfud6ubrc73buajmg-a/productosdb_f7mi
       - key: SECRET_KEY
         generateValue: true
-databases:
-  - name: productosdb
-    plan: free
