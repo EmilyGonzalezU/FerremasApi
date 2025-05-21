@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from flask import Flask, request, render_template, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -7,9 +8,9 @@ import os
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+load_dotenv()
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'postgresql://postgres:Contrasena123.@localhost/productosdb'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
 
 db.init_app(app)
 bcrypt = Bcrypt(app)
