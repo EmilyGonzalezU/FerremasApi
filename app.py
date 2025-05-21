@@ -4,9 +4,12 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from models import db, Usuario, Producto, Sucursal
 import os
+from urllib.parse import quote_plus
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
+password = "Contrasena123."
+encoded_password = quote_plus(password)  
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{encoded_password}@localhost/productosdb'
 app.config['SECRET_KEY'] = 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
 db.init_app(app)
 bcrypt = Bcrypt(app)
@@ -128,12 +131,12 @@ def api_productos():
         'marca': p.marca,
         'categoria': p.categoria,
         'precio': float(p.precio),
-        'precio_normal': float(p.precio),  # Añadido para compatibilidad
+        'precio_normal': float(p.precio), 
         'dscto': float(p.dscto) if p.dscto else 0,
-        'descuento': float(p.dscto) if p.dscto else 0,  # Alias para compatibilidad
+        'descuento': float(p.dscto) if p.dscto else 0,  
         'precio_anterior': float(p.precio_anterior) if p.precio_anterior else None,
         'descripcion': p.descripcion,
-        'descripcion_larga': p.descripcion,  # Alias para compatibilidad
+        'descripcion_larga': p.descripcion,
         'imagen': p.imagen,
         'codigo': p.codigo,
         'stock': p.stock if hasattr(p, 'stock') else 10, 
