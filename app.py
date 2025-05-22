@@ -9,7 +9,7 @@ from urllib.parse import quote_plus
 
 app = Flask(__name__)
 load_dotenv()
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'postgresql://postgres:Contrasena123.@localhost/productosdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'postgresql://emily:M3pJQve7gxnKEoWqHZfpo0AE5XyrW0ix@dpg-d0lbfud6ubrc73buajmg-a/productosdb_f7mi'
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
 
 db.init_app(app)
