@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from flask import Flask, request, render_template, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -8,10 +7,10 @@ import os
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
-load_dotenv()
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or 'postgresql://emily:M3pJQve7gxnKEoWqHZfpo0AE5XyrW0ix@dpg-d0lbfud6ubrc73buajmg-a/productosdb_f7mi'
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
-
+password = "Contrasena123."
+encoded_password = quote_plus(password)  
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{encoded_password}@localhost/productosdb'
+app.config['SECRET_KEY'] = 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
 db.init_app(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -23,23 +22,14 @@ def load_user(user_id):
 @app.before_request
 def crear_tablas():
     db.create_all()
-    
     if not Sucursal.query.first():
         suc1 = Sucursal(nombre='Sucursal Viña')
-        suc2 = Sucursal(nombre='Sucursal Santiago')
+        suc2 = Sucursal(nombre="Sucursal Santiago")
         db.session.add_all([suc1, suc2])
         db.session.commit()
-        print("Sucursales creadas")
-
-    if not Usuario.query.first():
-        admin = Usuario(
-            email='admin@admin.com',
-            password=bcrypt.generate_password_hash('admin123').decode('utf-8'),
-            sucursal_id=1  # Asegúrate de que esta ID existe
-        )
-        db.session.add(admin)
-        db.session.commit()
-        print("Usuario admin creado: admin@admin.com / admin123")
+        print("Sucursales creadas con API Keys:")
+        for s in Sucursal.query.all():
+            print(f"{s.nombre} - API Key: {s.apikey}")
         
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -169,6 +159,6 @@ def registrar():
     db.session.commit()
     return jsonify({"mensaje": "Usuario creado correctamente"})
 
-# Elimina el debug en producción
+
 if __name__ == '__main__':
-    app.run()
+   app.run(host='0.0.0.0', port=5000, debug=True)
