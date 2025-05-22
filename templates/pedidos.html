@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Sistema de Sucursales</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #219653;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .product-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .stock {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .stock.low {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Realizar Pedido a Otra Sucursal</h1>
+        
+        {% if exito %}
+        <div class="alert alert-success">
+            ¡Pedido realizado con éxito! El código de tu pedido es #{{ last_pedido_id }}.
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Volver al panel</a>
+        {% else %}
+            {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+            
+            <form action="{{ url_for('pedidos') }}" method="POST">
+                <div class="two-columns">
+                    <div>
+                        <div class="form-group">
+                            <label for="producto_id">Producto:</label>
+                            <select id="producto_id" name="producto_id" required>
+                                <option value="">Seleccione un producto</option>
+                                {% for producto in productos %}
+                                <option value="{{ producto.codigo_producto }}" data-stock="{{ producto.stock }}">
+                                    {{ producto.nombre }} - {{ producto.marca }}
+                                    <span class="stock {% if producto.stock <= 5 %}low{% endif %}">
+                                        (Stock: {{ producto.stock }})
+                                    </span>
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cantidad">Cantidad:</label>
+                            <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label for="sucursal_destino">Sucursal Destino:</label>
+                            <select id="sucursal_destino" name="sucursal_destino" required>
+                                <option value="">Seleccione una sucursal</option>
+                                {% for sucursal in sucursales %}
+                                <option value="{{ sucursal.id }}">{{ sucursal.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Información:</label>
+                            <div class="product-info">
+                                <span>Tu sucursal:</span>
+                                <span><strong>{{ sucursal.nombre }}</strong></span>
+                            </div>
+                            <div class="product-info">
+                                <span>Productos disponibles:</span>
+                                <span><strong>{{ productos|length }}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit">Realizar Pedido</button>
+            </form>
+            
+            <a href="{{ url_for('dashboard') }}" class="back-link">← Volver al panel</a>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productoSelect = document.getElementById('producto_id');
+            const cantidadInput = document.getElementById('cantidad');
+            
+            productoSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const stock = selectedOption.getAttribute('data-stock');
+                
+                if (stock) {
+                    cantidadInput.max = stock;
+                    if (parseInt(cantidadInput.value) > parseInt(stock)) {
+                        cantidadInput.value = stock;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

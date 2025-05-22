@@ -1,8 +1,9 @@
+import datetime
 from flask import Flask, request, render_template, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from models import db, Usuario, Producto, Sucursal
+from models import MensajeContacto, Pedido, db, Usuario, Producto, Sucursal
 import os
 from urllib.parse import quote_plus
 
@@ -160,5 +161,207 @@ def registrar():
     return jsonify({"mensaje": "Usuario creado correctamente"})
 
 
+@app.route('/categorias')
+@login_required
+def categorias():
+    categorias = db.session.query(Producto.categoria).filter_by(
+        sucursal_id=current_user.sucursal_id
+    ).distinct().all()
+    categorias = [c[0] for c in categorias]
+    
+    productos_por_categoria = []
+    for categoria in categorias:
+        count = Producto.query.filter_by(
+            sucursal_id=current_user.sucursal_id,
+            categoria=categoria
+        ).count()
+        productos_por_categoria.append({
+            'nombre': categoria,
+            'cantidad': count
+        })
+    
+    return render_template('categorias.html', 
+                         categorias=productos_por_categoria,
+                         sucursal=current_user.sucursal)
+
+@app.route('/stock')
+@login_required
+def stock():
+    stock_bajo = Producto.query.filter(
+        Producto.sucuCrsal_id == current_user.sucursal_id,
+        Producto.stock <= 5
+    ).order_by(Producto.stock.asc()).all()
+    
+    stock_normal = Producto.query.filter(
+        Producto.sucursal_id == current_user.sucursal_id,
+        Producto.stock > 5
+    ).order_by(Producto.nombre.asc()).all()
+    
+    return render_template('stock.html',
+                         stock_bajo=stock_bajo,
+                         stock_normal=stock_normal,
+                         sucursal=current_user.sucursal)
+    
+@app.route('/pedidos', methods=['GET', 'POST'])
+@login_required
+def pedidos():
+    if request.method == 'POST':
+        try:
+            producto_id = request.form.get('producto_id')
+            if not producto_id:
+                return render_template('pedidos.html', 
+                                    error="Debes seleccionar un producto",
+                                    productos=Producto.query.filter_by(sucursal_id=current_user.sucursal_id).all(),
+                                    sucursales=Sucursal.query.filter(Sucursal.id != current_user.sucursal_id).all(),
+                                    sucursal=current_user.sucursal)
+            
+            cantidad = int(request.form.get('cantidad', 0))
+            sucursal_destino_id = int(request.form.get('sucursal_destino', 0))
+            
+            if cantidad <= 0:
+                return render_template('pedidos.html', 
+                                    error="La cantidad debe ser mayor a cero",
+                                    productos=Producto.query.filter_by(sucursal_id=current_user.sucursal_id).all(),
+                                    sucursales=Sucursal.query.filter(Sucursal.id != current_user.sucursal_id).all(),
+                                    sucursal=current_user.sucursal)
+            
+            producto = Producto.query.filter_by(codigo_producto=producto_id, sucursal_id=current_user.sucursal_id).first()
+            if not producto:
+                return render_template('pedidos.html', 
+                                    error="Producto no encontrado",
+                                    productos=Producto.query.filter_by(sucursal_id=current_user.sucursal_id).all(),
+                                    sucursales=Sucursal.query.filter(Sucursal.id != current_user.sucursal_id).all(),
+                                    sucursal=current_user.sucursal)
+            
+            if producto.stock < cantidad:
+                return render_template('pedidos.html', 
+                                    error="No hay suficiente stock disponible",
+                                    productos=Producto.query.filter_by(sucursal_id=current_user.sucursal_id).all(),
+                                    sucursales=Sucursal.query.filter(Sucursal.id != current_user.sucursal_id).all(),
+                                    sucursal=current_user.sucursal)
+            
+            nuevo_pedido = Pedido(
+                producto_id=producto.codigo_producto,
+                cantidad=cantidad,
+                sucursal_origen_id=current_user.sucursal_id,
+                sucursal_destino_id=sucursal_destino_id,
+                usuario_id=current_user.id,
+                estado='pendiente'
+            )
+            
+            producto.stock -= cantidad
+            
+            db.session.add(nuevo_pedido)
+            db.session.commit()
+            
+            return redirect('/pedidos?exito=1&pedido_id=' + str(nuevo_pedido.id))
+        
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error al procesar pedido: {str(e)}")
+            return render_template('pedidos.html', 
+                                error=f"Error al procesar el pedido: {str(e)}",
+                                productos=Producto.query.filter_by(sucursal_id=current_user.sucursal_id).all(),
+                                sucursales=Sucursal.query.filter(Sucursal.id != current_user.sucursal_id).all(),
+                                sucursal=current_user.sucursal)
+    
+    productos = Producto.query.filter_by(sucursal_id=current_user.sucursal_id).all()
+    sucursales = Sucursal.query.filter(Sucursal.id != current_user.sucursal_id).all()
+    exito = request.args.get('exito')
+    pedido_id = request.args.get('pedido_id')
+    
+    return render_template('pedidos.html', 
+                        productos=productos, 
+                        sucursales=sucursales,
+                        sucursal=current_user.sucursal,
+                        exito=exito,
+                        last_pedido_id=pedido_id)
+
+
+
+@app.route('/moneda/convertir', methods=['GET'])
+def convertir_moneda():
+    try:
+        monto = request.args.get('monto', type=float)
+        de_moneda = request.args.get('de', 'USD').upper() 
+        a_moneda = request.args.get('a', 'CLP').upper()    
+        
+        if not monto or monto <= 0:
+            return jsonify({"error": "Monto inválido"}), 400
+        
+        response = request.get('https://mindicador.cl/api')
+        data = response.json()
+        
+        monedas_disponibles = {'USD', 'EUR', 'CLP'} 
+        if de_moneda not in monedas_disponibles or a_moneda not in monedas_disponibles:
+            return jsonify({"error": "Moneda no soportada"}), 400
+        
+        # Obtener tasas de conversión
+        if de_moneda == 'CLP':
+            valor_de = 1
+        else:
+            valor_de = data.get(de_moneda.lower(), {}).get('valor')
+            if not valor_de:
+                return jsonify({"error": f"No se pudo obtener valor para {de_moneda}"}), 400
+        
+        if a_moneda == 'CLP':
+            valor_a = 1
+        else:
+            valor_a = data.get(a_moneda.lower(), {}).get('valor')
+            if not valor_a:
+                return jsonify({"error": f"No se pudo obtener valor para {a_moneda}"}), 400
+        
+        # Realizar conversión
+        if de_moneda == 'CLP':
+            resultado = monto / valor_a
+        elif a_moneda == 'CLP':
+            resultado = monto * valor_de
+        else:
+            # Conversión entre dos monedas extranjeras (primero a CLP y luego a la moneda destino)
+            resultado = (monto * valor_de) / valor_a
+        
+        return jsonify({
+            "monto_original": monto,
+            "moneda_original": de_moneda,
+            "monto_convertido": round(resultado, 2),
+            "moneda_destino": a_moneda,
+            "fecha_consulta": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "fuente": "mindicador.cl"
+        })
+        
+    except request.RequestException as e:
+        return jsonify({"error": f"Error al consultar API de monedas: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
+    
+    
+@app.route('/contacto', methods=['GET', 'POST'])
+def contacto():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        email = request.form.get('email')
+        mensaje = request.form.get('mensaje')
+        
+        if not nombre or not email or not mensaje:
+            return render_template('mensajes.html', error="Todos los campos son requeridos")
+        
+        try:
+            nuevo_mensaje = MensajeContacto(
+                nombre=nombre,
+                email=email,
+                mensaje=mensaje
+            )
+            
+            db.session.add(nuevo_mensaje)
+            db.session.commit()
+            
+            
+            return render_template('mensajes.html', exito=True)
+        
+        except Exception as e:
+            db.session.rollback()
+            return render_template('mensajes.html', error=f"Error al enviar el mensaje: {str(e)}")
+    
+    return render_template('mensajes.html')
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=5000, debug=True)

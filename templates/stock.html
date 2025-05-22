@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Stock por Sucursal - Ferremas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            min-height: 100vh;
+            color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .sidebar-brand {
+            height: 4.375rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            letter-spacing: 0.05rem;
+            z-index: 1;
+        }
+        
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 0 1rem 1rem;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            font-weight: 400;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .active {
+            color: white !important;
+            font-weight: 500;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #e3e6f0;
+            padding: 1rem 1.35rem;
+            font-weight: 600;
+        }
+        
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table thead th {
+            border-bottom: none;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .table td, .table th {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-top: 1px solid #e3e6f0;
+        }
+        
+        .stock-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .indicator-good {
+            background-color: var(--secondary-color);
+        }
+        
+        .indicator-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .indicator-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .low-stock-row {
+            background-color: rgba(246, 194, 62, 0.1);
+        }
+        
+        .critical-stock-row {
+            background-color: rgba(231, 74, 59, 0.1);
+        }
+        
+        .section-title {
+            border-left: 4px solid;
+            padding-left: 10px;
+            margin: 25px 0 15px;
+        }
+        
+        .section-title-warning {
+            border-left-color: var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .section-title-success {
+            border-left-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        .search-box {
+            max-width: 300px;
+        }
+        
+        .status-badge {
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block sidebar px-0">
+                <div class="sidebar-brand d-flex align-items-center justify-content-center">
+                    <i class="fas fa-store me-2"></i>
+                    <span>Ferremas</span>
+                </div>
+                <hr class="sidebar-divider">
+                <div class="nav flex-column">
+                    <a class="nav-link" href="/home">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="/producto/agregar">
+                        <i class="fas fa-fw fa-plus-circle"></i>
+                        <span>Agregar Producto</span>
+                    </a>
+                    <a class="nav-link" href="/categorias">
+                        <i class="fas fa-fw fa-tags"></i>
+                        <span>Categorías</span>
+                    </a>
+                    <a class="nav-link active" href="/stock">
+                        <i class="fas fa-fw fa-boxes"></i>
+                        <span>Stock</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-boxes me-2"></i>
+                        Gestión de Stock - {{ sucursal.nombre }}
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="/logout" class="btn btn-sm btn-danger">
+                            <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Productos con Stock Bajo</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {{ stock_bajo|length }}
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Productos sin Stock</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {% set sin_stock = stock_bajo|selectattr('stock', 'equalto', 0)|list|length %}
+                                            {{ sin_stock }}
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-times-circle fa-2x text-danger"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Total Productos</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {{ (stock_bajo|length) + (stock_normal|length) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-boxes fa-2x text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-secondary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                            Stock Normal</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            {{ stock_normal|length }}
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                            <span class="font-weight-bold">Productos con Stock Bajo (≤5 unidades)</span>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control form-control-sm search-box" 
+                                   placeholder="Buscar producto..." id="searchLowStock">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if stock_bajo %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="lowStockTable">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Código</th>
+                                        <th>Categoría</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in stock_bajo %}
+                                    <tr class="{% if producto.stock == 0 %}critical-stock-row{% else %}low-stock-row{% endif %}">
+                                        <td>{{ producto.nombre }}</td>
+                                        <td>{{ producto.codigo }}</td>
+                                        <td>{{ producto.categoria }}</td>
+                                        <td>
+                                            <span class="stock-indicator 
+                                                {% if producto.stock == 0 %}indicator-danger
+                                                {% else %}indicator-warning{% endif %}"></span>
+                                            {{ producto.stock }}
+                                        </td>
+                                        <td>
+                                            {% if producto.stock == 0 %}
+                                            <span class="status-badge bg-danger text-white">Sin stock</span>
+                                            {% else %}
+                                            <span class="status-badge bg-warning text-dark">Bajo stock</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="/producto/editar/{{ producto.codigo_producto }}" class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>Reabastecer
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            ¡Excelente! No hay productoroductos con bajo stock en esta sucursal.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            <span class="font-weight-bold">Productos con Stock Normal</span>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control form-control-sm search-box" 
+                                   placeholder="Buscar producto..." id="searchNormalStock">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if stock_normal %}
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="normalStockTable">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Código</th>
+                                        <th>Categoría</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in stock_normal %}
+                                    <tr>
+                                        <td>{{ producto.nombre }}</td>
+                                        <td>{{ producto.codigo }}</td>
+                                        <td>{{ producto.categoria }}</td>
+                                        <td>
+                                            <span class="stock-indicator indicator-good"></span>
+                                            {{ producto.stock }}
+                                        </td>
+                                        <td>
+                                            <span class="status-badge bg-success text-white">Disponible</span>
+                                        </td>
+                                        <td>
+                                            <a href="/producto/editar/{{ producto.codigo_producto }}" class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No hay productos con stock normal en esta sucursal.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Search functionality for low stock table
+        document.getElementById('searchLowStock').addEventListener('keyup', function() {
+            const input = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#lowStockTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        });
+
+        // Search functionality for normal stock table
+        document.getElementById('searchNormalStock').addEventListener('keyup', function() {
+            const input = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#normalStockTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

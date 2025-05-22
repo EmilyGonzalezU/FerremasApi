@@ -23,6 +23,53 @@
             color: #333;
         }
         
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            min-height: 100vh;
+            color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .sidebar-brand {
+            height: 4.375rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            letter-spacing: 0.05rem;
+            z-index: 1;
+        }
+        
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 0 1rem 1rem;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            font-weight: 400;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .active {
+            color: white !important;
+            font-weight: 500;
+        }
+        
         .card {
             border: none;
             border-radius: 0.5rem;
@@ -100,142 +147,170 @@
     </style>
 </head>
 <body>
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fas fa-plus-circle me-2"></i>
-                            <span>Agregar Nuevo Producto</span>
-                        </div>
-                        <a href="/home" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-1"></i> Volver
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            <!-- Información Básica -->
-                            <div class="form-section">
-                                <h5 class="section-title">
-                                    <i class="fas fa-info-circle me-2"></i>Información Básica
-                                </h5>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="nombre" class="required-field">Nombre del Producto</label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" required>
-                                        <small class="text-muted">Nombre completo del producto</small>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 d-md-block sidebar px-0">
+                <div class="sidebar-brand d-flex align-items-center justify-content-center">
+                    <i class="fas fa-store me-2"></i>
+                    <span>Ferremas</span>
+                </div>
+                <hr class="sidebar-divider">
+                <div class="nav flex-column">
+                    <a class="nav-link" href="/home">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link active" href="/producto/agregar">
+                        <i class="fas fa-fw fa-plus-circle"></i>
+                        <span>Agregar Producto</span>
+                    </a>
+                    <a class="nav-link" href="/categorias">
+                        <i class="fas fa-fw fa-tags"></i>
+                        <span>Categorías por Sucursal</span>
+                    </a>
+                    <a class="nav-link" href="/stock">
+                        <i class="fas fa-fw fa-boxes"></i>
+                        <span>Stock por Sucursal</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4 py-4">
+                <div class="container py-1">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-plus-circle me-2"></i>
+                                        <span>Agregar Nuevo Producto</span>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="marca">Marca</label>
-                                        <input type="text" class="form-control" id="marca" name="marca">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="categoria">Categoría</label>
-                                        <select class="form-select" id="categoria" name="categoria">
-                                            <option value="" selected disabled>Seleccionar categoría</option>
-                                            <option value="herramientas manuales">Herramientas Manuales</option>
-                                            <option value="materiales basicos">Materiales Básicos</option>
-                                            <option value="equipos de seguridad">Equipos de Seguridad</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="codigo">Código de Producto</label>
-                                        <input type="text" class="form-control" id="codigo" name="codigo">
-                                        <small class="text-muted">Código único o SKU</small>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="descripcion">Descripción</label>
-                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Precios y Stock -->
-                            <div class="form-section">
-                                <h5 class="section-title">
-                                    <i class="fas fa-tags me-2"></i>Precios y Stock
-                                </h5>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="precio" class="required-field">Precio Actual</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">$</span>
-                                            <input type="number" step="0.01" class="form-control" id="precio" name="precio" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="dscto">Descuento (%)</label>
-                                        <div class="input-group">
-                                            <input type="number" step="0.01" class="form-control" id="dscto" name="dscto" min="0" max="100">
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="precio_anterior">Precio Anterior</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">$</span>
-                                            <input type="number" step="0.01" class="form-control" id="precio_anterior" name="precio_anterior">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="stock" class="required-field">Stock Disponible</label>
-                                        <input type="number" class="form-control" id="stock" name="stock" min="0" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label>Estado de Stock</label>
-                                        <div class="form-control bg-light">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="estado_stock" id="disponible" value="disponible" checked>
-                                                <label class="form-check-label" for="disponible">Disponible</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="estado_stock" id="agotado" value="agotado">
-                                                <label class="form-check-label" for="agotado">Agotado</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Imagen del Producto -->
-                            <div class="form-section">
-                                <h5 class="section-title">
-                                    <i class="fas fa-image me-2"></i>Imagen del Producto
-                                </h5>
-                                <div class="mb-3">
-                                    <label for="imagen">URL de la Imagen</label>
-                                    <input type="url" class="form-control" id="imagen" name="imagen" placeholder="https://ejemplo.com/imagen.jpg">
-                                    <small class="text-muted">O sube una imagen local</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="imagen_local">Subir Imagen</label>
-                                    <input type="file" class="form-control" id="imagen_local" name="imagen_local" accept="image/*">
-                                </div>
-                                <div class="text-center">
-                                    <img id="imagePreview" src="#" alt="Vista previa de la imagen" class="preview-image">
-                                </div>
-                            </div>
-
-                            <!-- Botones de Acción -->
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="reset" class="btn btn-outline-secondary">
-                                    <i class="fas fa-undo me-1"></i> Limpiar
-                                </button>
-                                <div>
-                                    <a href="/home" class="btn btn-secondary me-2">
-                                        <i class="fas fa-times me-1"></i> Cancelar
+                                    <a href="/home" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i> Volver
                                     </a>
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fas fa-save me-1"></i> Guardar Producto
-                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <form method="POST" enctype="multipart/form-data">
+                                        <div class="form-section">
+                                            <h5 class="section-title">
+                                                <i class="fas fa-info-circle me-2"></i>Información Básica
+                                            </h5>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="nombre" class="required-field">Nombre del Producto</label>
+                                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                                    <small class="text-muted">Nombre completo del producto</small>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="marca">Marca</label>
+                                                    <input type="text" class="form-control" id="marca" name="marca">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="categoria">Categoría</label>
+                                                    <select class="form-select" id="categoria" name="categoria">
+                                                        <option value="" selected disabled>Seleccionar categoría</option>
+                                                        <option value="herramientas manuales">Herramientas Manuales</option>
+                                                        <option value="materiales basicos">Materiales Básicos</option>
+                                                        <option value="equipos de seguridad">Equipos de Seguridad</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="codigo">Código de Producto</label>
+                                                    <input type="text" class="form-control" id="codigo" name="codigo">
+                                                    <small class="text-muted">Código único o SKU</small>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="descripcion">Descripción</label>
+                                                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-section">
+                                            <h5 class="section-title">
+                                                <i class="fas fa-tags me-2"></i>Precios y Stock
+                                            </h5>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="precio" class="required-field">Precio Actual</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" step="0.01" class="form-control" id="precio" name="precio" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="dscto">Descuento (%)</label>
+                                                    <div class="input-group">
+                                                        <input type="number" step="0.01" class="form-control" id="dscto" name="dscto" min="0" max="100">
+                                                        <span class="input-group-text">%</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="precio_anterior">Precio Anterior</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" step="0.01" class="form-control" id="precio_anterior" name="precio_anterior">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="stock" class="required-field">Stock Disponible</label>
+                                                    <input type="number" class="form-control" id="stock" name="stock" min="0" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label>Estado de Stock</label>
+                                                    <div class="form-control bg-light">
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio" name="estado_stock" id="disponible" value="disponible" checked>
+                                                            <label class="form-check-label" for="disponible">Disponible</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio" name="estado_stock" id="agotado" value="agotado">
+                                                            <label class="form-check-label" for="agotado">Agotado</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-section">
+                                            <h5 class="section-title">
+                                                <i class="fas fa-image me-2"></i>Imagen del Producto
+                                            </h5>
+                                            <div class="mb-3">
+                                                <label for="imagen">URL de la Imagen</label>
+                                                <input type="url" class="form-control" id="imagen" name="imagen" placeholder="https://ejemplo.com/imagen.jpg">
+                                                <small class="text-muted">O sube una imagen local</small>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="imagen_local">Subir Imagen</label>
+                                                <input type="file" class="form-control" id="imagen_local" name="imagen_local" accept="image/*">
+                                            </div>
+                                            <div class="text-center">
+                                                <img id="imagePreview" src="#" alt="Vista previa de la imagen" class="preview-image">
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between mt-4">
+                                            <button type="reset" class="btn btn-outline-secondary">
+                                                <i class="fas fa-undo me-1"></i> Limpiar
+                                            </button>
+                                            <div>
+                                                <a href="/home" class="btn btn-secondary me-2">
+                                                    <i class="fas fa-times me-1"></i> Cancelar
+                                                </a>
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-save me-1"></i> Guardar Producto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -246,7 +321,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script>
-        // Vista previa de la imagen
         document.getElementById('imagen_local').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -259,7 +333,6 @@
             }
         });
         
-        // Validación de descuento
         document.getElementById('dscto').addEventListener('change', function() {
             if (this.value > 100) {
                 this.value = 100;

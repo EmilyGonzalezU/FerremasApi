@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Moneda</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .converter-box {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-box">
+        <h2>Conversor de Moneda</h2>
+        <div class="form-group">
+            <label for="monto">Monto:</label>
+            <input type="number" id="monto" class="form-control" step="0.01" min="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="de_moneda">De:</label>
+            <select id="de_moneda" class="form-control">
+                <option value="USD">Dólar (USD)</option>
+                <option value="EUR">Euro (EUR)</option>
+                <option value="CLP">Peso Chileno (CLP)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="a_moneda">A:</label>
+            <select id="a_moneda" class="form-control">
+                <option value="CLP">Peso Chileno (CLP)</option>
+                <option value="USD">Dólar (USD)</option>
+                <option value="EUR">Euro (EUR)</option>
+            </select>
+        </div>
+        
+        <button id="convertir" class="btn btn-primary">Convertir</button>
+        
+        <div id="resultado" class="result" style="display: none;">
+            <h4>Resultado:</h4>
+            <p id="conversion-text"></p>
+            <p id="fecha-consulta" class="text-muted small"></p>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#convertir').click(function() {
+                const monto = $('#monto').val();
+                const de_moneda = $('#de_moneda').val();
+                const a_moneda = $('#a_moneda').val();
+                
+                if (!monto || monto <= 0) {
+                    alert('Por favor ingrese un monto válido');
+                    return;
+                }
+                
+                $.get(`/moneda/convertir?monto=${monto}&de=${de_moneda}&a=${a_moneda}`, function(data) {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    
+                    $('#conversion-text').html(`
+                        ${data.monto_original} ${data.moneda_original} = 
+                        <strong>${data.monto_convertido} ${data.moneda_destino}</strong>
+                    `);
+                    
+                    $('#fecha-consulta').text(`Consulta realizada el: ${data.fecha_consulta} (Fuente: ${data.fuente})`);
+                    $('#resultado').show();
+                }).fail(function() {
+                    alert('Error al realizar la conversión. Por favor intente nuevamente.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
