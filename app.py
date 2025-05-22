@@ -23,14 +23,23 @@ def load_user(user_id):
 @app.before_request
 def crear_tablas():
     db.create_all()
+    
     if not Sucursal.query.first():
         suc1 = Sucursal(nombre='Sucursal Viña')
-        suc2 = Sucursal(nombre="Sucursal Santiago")
+        suc2 = Sucursal(nombre='Sucursal Santiago')
         db.session.add_all([suc1, suc2])
         db.session.commit()
-        print("Sucursales creadas con API Keys:")
-        for s in Sucursal.query.all():
-            print(f"{s.nombre} - API Key: {s.apikey}")
+        print("Sucursales creadas")
+
+    if not Usuario.query.first():
+        admin = Usuario(
+            email='admin@admin.com',
+            password=bcrypt.generate_password_hash('admin123').decode('utf-8'),
+            sucursal_id=1  # Asegúrate de que esta ID existe
+        )
+        db.session.add(admin)
+        db.session.commit()
+        print("Usuario admin creado: admin@admin.com / admin123")
         
 @app.route('/login', methods=['GET', 'POST'])
 def login():
