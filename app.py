@@ -332,7 +332,15 @@ def convertir_moneda():
     except Exception as e:
         return jsonify({"error": f"Error inesperado: {str(e)}"}), 500
     
-    
+@app.route('/crear_admin_temporal')
+def crear_admin_temporal():
+        from .models import Usuario
+        password = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode()
+        nuevo = Usuario(username="admin", password=password)
+        db.session.add(nuevo)
+        db.session.commit()
+        return "Usuario creado"
+        return render_template('mensajes.html') 
 @app.route('/contacto', methods=['GET', 'POST'])
 def contacto():
     if request.method == 'POST':
@@ -360,6 +368,6 @@ def contacto():
             db.session.rollback()
             return render_template('mensajes.html', error=f"Error al enviar el mensaje: {str(e)}")
     
-    return render_template('mensajes.html')
+   
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=5000, debug=True)
