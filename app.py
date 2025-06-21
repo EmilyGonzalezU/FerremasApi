@@ -334,13 +334,19 @@ def convertir_moneda():
     
 @app.route('/crear_admin_temporal')
 def crear_admin_temporal():
-        from models import Usuario
-        password = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode()
-        nuevo = Usuario(username="admin", password=password)
-        db.session.add(nuevo)
-        db.session.commit()
-        return "Usuario creado"
-        return render_template('mensajes.html') 
+    if Usuario.query.filter_by(email="admin@ferremas.cl").first():
+        return "Ya existe el admin", 400
+
+    sucursal = Sucursal.query.first()
+    if not sucursal:
+        return "No hay sucursales registradas", 400
+
+    password = bcrypt.generate_password_hash("admin123").decode('utf-8')
+    nuevo = Usuario(email="admin@ferremas.cl", password=password, sucursal_id=sucursal.id)
+    db.session.add(nuevo)
+    db.session.commit()
+    return "Usuario admin creado correctamente con email: admin@ferremas.cl y password: admin123"
+
 @app.route('/contacto', methods=['GET', 'POST'])
 def contacto():
     if request.method == 'POST':
