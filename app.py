@@ -334,7 +334,7 @@ def convertir_moneda():
     
 @app.route('/crear_admin_temporal')
 def crear_admin_temporal():
-        from .models import Usuario
+        from models import Usuario
         password = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode()
         nuevo = Usuario(username="admin", password=password)
         db.session.add(nuevo)
