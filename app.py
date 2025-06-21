@@ -8,10 +8,7 @@ import os
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
-password = "Contrasena123."
-encoded_password = quote_plus(password)  
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{encoded_password}@localhost/productosdb'
-app.config['SECRET_KEY'] = 'a3f5e7d8c9b1f2e3d4a5b6c7d8e9f0123456789abcdef0123456789abcdef01'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
 db.init_app(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -188,7 +185,7 @@ def categorias():
 @login_required
 def stock():
     stock_bajo = Producto.query.filter(
-        Producto.sucuCrsal_id == current_user.sucursal_id,
+        Producto.sucursal_id == current_user.sucursal_id,
         Producto.stock <= 5
     ).order_by(Producto.stock.asc()).all()
     
@@ -364,4 +361,5 @@ def contacto():
     
     return render_template('mensajes.html')
 if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
