@@ -11,5 +11,3 @@ services:
         value: postgresql://emily:WkLTiF0aN0yLa9yP1h4Oq9UnsSgQcmRy@dpg-d1beuq8dl3ps73ekpi8g-a/productosdb_tppt
       - key: SECRET_KEY
         generateValue: true
-    build:
-      pythonVersion: 3.11
