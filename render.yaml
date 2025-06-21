@@ -8,6 +8,6 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - key: DATABASE_URL
-        value: postgresql://emily:M3pJQve7gxnKEoWqHZfpo0AE5XyrW0ix@dpg-d0lbfud6ubrc73buajmg-a/productosdb_f7mi
+        value: postgresql://emily:WkLTiF0aN0yLa9yP1h4Oq9UnsSgQcmRy@dpg-d1beuq8dl3ps73ekpi8g-a/productosdb_tppt
       - key: SECRET_KEY
         generateValue: true
