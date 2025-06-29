@@ -373,7 +373,7 @@ def contacto():
         except Exception as e:
             db.session.rollback()
             return render_template('mensajes.html', error=f"Error al enviar el mensaje: {str(e)}")
-    
+    return render_template('contacto.html')
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=5000, debug=True)

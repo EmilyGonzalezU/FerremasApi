@@ -134,22 +134,6 @@
             background-color: rgba(231, 74, 59, 0.1);
         }
         
-        .section-title {
-            border-left: 4px solid;
-            padding-left: 10px;
-            margin: 25px 0 15px;
-        }
-        
-        .section-title-warning {
-            border-left-color: var(--warning-color);
-            color: var(--warning-color);
-        }
-        
-        .section-title-success {
-            border-left-color: var(--secondary-color);
-            color: var(--secondary-color);
-        }
-        
         .search-box {
             max-width: 300px;
         }
@@ -158,6 +142,54 @@
             font-weight: 500;
             padding: 5px 10px;
             border-radius: 4px;
+        }
+        
+        .border-left-primary {
+            border-left: 0.25rem solid var(--primary-color) !important;
+        }
+        
+        .border-left-success {
+            border-left: 0.25rem solid var(--secondary-color) !important;
+        }
+        
+        .border-left-warning {
+            border-left: 0.25rem solid var(--warning-color) !important;
+        }
+        
+        .border-left-danger {
+            border-left: 0.25rem solid var(--danger-color) !important;
+        }
+        
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        
+        .text-success {
+            color: var(--secondary-color) !important;
+        }
+        
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+        
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+        
+        .bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .bg-success {
+            background-color: var(--secondary-color) !important;
+        }
+        
+        .bg-warning {
+            background-color: var(--warning-color) !important;
+        }
+        
+        .bg-danger {
+            background-color: var(--danger-color) !important;
         }
     </style>
 </head>
@@ -182,11 +214,23 @@
                     </a>
                     <a class="nav-link" href="/categorias">
                         <i class="fas fa-fw fa-tags"></i>
-                        <span>Categorías</span>
+                        <span>Categorías por Sucursal</span>
                     </a>
                     <a class="nav-link active" href="/stock">
                         <i class="fas fa-fw fa-boxes"></i>
-                        <span>Stock</span>
+                        <span>Stock por Sucursal</span>
+                    </a>
+                    <a class="nav-link" href="/pedidos">
+                        <i class="fas fa-fw fa-clipboard-list"></i>
+                        <span>Realizar Pedidos</span>
+                    </a>
+                    <a class="nav-link" href="/contacto">
+                        <i class="fas fa-fw fa-envelope"></i>
+                        <span>Contacto</span>
+                    </a>
+                    <a class="nav-link" href="/moneda/convertir">
+                        <i class="fas fa-fw fa-exchange-alt"></i>
+                        <span>Convertidor</span>
                     </a>
                 </div>
             </div>
@@ -225,11 +269,11 @@
                     </div>
 
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card border-left-danger shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                             Productos sin Stock</div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
                                             {% set sin_stock = stock_bajo|selectattr('stock', 'equalto', 0)|list|length %}
@@ -264,11 +308,11 @@
                     </div>
 
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-secondary shadow h-100 py-2">
+                        <div class="card border-left-success shadow h-100 py-2">
                             <div class="card-body">
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                             Stock Normal</div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
                                             {{ stock_normal|length }}
@@ -329,7 +373,7 @@
                                         </td>
                                         <td>
                                             <a href="/producto/editar/{{ producto.codigo_producto }}" class="btn btn-sm btn-outline-primary me-1">
-                                                <i class="fas fa-edit"></i>Reabastecer
+                                                <i class="fas fa-edit"></i> Reabastecer
                                             </a>
                                         </td>
                                     </tr>
@@ -340,7 +384,7 @@
                         {% else %}
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle me-2"></i>
-                            ¡Excelente! No hay productoroductos con bajo stock en esta sucursal.
+                            ¡Excelente! No hay productos con bajo stock en esta sucursal.
                         </div>
                         {% endif %}
                     </div>

@@ -54,5 +54,5 @@ class MensajeContacto(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
     mensaje = db.Column(db.Text, nullable=False)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow)  # Corregido aquí también
+    fecha = db.Column(db.DateTime, default=datetime.utcnow) 
     leido = db.Column(db.Boolean, default=False)
