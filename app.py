@@ -347,33 +347,35 @@ def crear_admin_temporal():
     db.session.commit()
     return "Usuario admin creado correctamente con email: admin@ferremas.cl y password: admin123"
 
+
 @app.route('/contacto', methods=['GET', 'POST'])
 def contacto():
     if request.method == 'POST':
         nombre = request.form.get('nombre')
         email = request.form.get('email')
         mensaje = request.form.get('mensaje')
-        
+
         if not nombre or not email or not mensaje:
             return render_template('mensajes.html', error="Todos los campos son requeridos")
-        
+
         try:
             nuevo_mensaje = MensajeContacto(
                 nombre=nombre,
                 email=email,
                 mensaje=mensaje
             )
-            
+
             db.session.add(nuevo_mensaje)
             db.session.commit()
-            
-            
+
             return render_template('mensajes.html', exito=True)
-        
+
         except Exception as e:
             db.session.rollback()
             return render_template('mensajes.html', error=f"Error al enviar el mensaje: {str(e)}")
+
     return render_template('contacto.html')
+
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=5000, debug=True)
