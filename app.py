@@ -377,6 +377,37 @@ def contacto():
 
     return render_template('contacto.html')
 
+
+@app.route('/tipo-cambio')
+@login_required
+def tipo_cambio():
+    dolar = obtener_tipo_cambio('USD')
+    euro = obtener_tipo_cambio('EUR')
+
+    return render_template('tipo_cambio.html', dolar=dolar, euro=euro, sucursal=current_user.sucursal)
+
+
+def obtener_tipo_cambio(moneda='USD'):
+    try:
+        response = requests.get('https://mindicador.cl/api')
+        data = response.json()
+        if moneda.upper() == 'USD':
+            return float(data['dolar']['valor'])
+        elif moneda.upper() == 'EUR':
+            return float(data['euro']['valor'])
+        else:
+            raise ValueError("Moneda no soportada")
+    except Exception as e:
+        app.logger.error(f"Error al obtener tipo de cambio: {str(e)}")
+        return None
+    
+
+    
+
+
+
+
+
    
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=5000, debug=True)
