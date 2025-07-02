@@ -6,6 +6,7 @@ from flask_login import LoginManager, login_user, login_required, current_user, 
 from models import MensajeContacto, Pedido, db, Usuario, Producto, Sucursal
 import os
 from urllib.parse import quote_plus
+import requests 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
