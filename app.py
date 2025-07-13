@@ -361,19 +361,57 @@ def convertir_moneda():
     
 @app.route('/crear_admin_temporal')
 def crear_admin_temporal():
+    # Verificar si ya existen los usuarios
     if Usuario.query.filter_by(email="admin@ferremas.cl").first():
-        return "Ya existe el admin", 400
+        return "El admin principal ya existe", 400
+    if Usuario.query.filter_by(email="admin.santiago@ferremas.cl").first():
+        return "El admin de Santiago ya existe", 400
 
-    sucursal = Sucursal.query.first()
-    if not sucursal:
-        return "No hay sucursales registradas", 400
+    # Obtener las sucursales
+    sucursal_viña = Sucursal.query.get(1)  # Sucursal Viña del Mar
+    sucursal_santiago = Sucursal.query.get(2)  # Sucursal Santiago
 
-    password = bcrypt.generate_password_hash("admin123").decode('utf-8')
-    nuevo = Usuario(email="admin@ferremas.cl", password=password, sucursal_id=sucursal.id)
-    db.session.add(nuevo)
-    db.session.commit()
-    return "Usuario admin creado correctamente con email: admin@ferremas.cl y password: admin123"
+    if not sucursal_viña or not sucursal_santiago:
+        return "No se encontraron ambas sucursales", 400
 
+    try:
+        # Crear admin para Viña del Mar (sucursal 1)
+        password = bcrypt.generate_password_hash("admin123").decode('utf-8')
+        admin_viña = Usuario(
+            email="admin@ferremas.cl", 
+            password=password, 
+            sucursal_id=sucursal_viña.id
+        )
+        db.session.add(admin_viña)
+
+        # Crear admin para Santiago (sucursal 2)
+        password_santiago = bcrypt.generate_password_hash("santiago123").decode('utf-8')
+        admin_santiago = Usuario(
+            email="admin.santiago@ferremas.cl", 
+            password=password_santiago, 
+            sucursal_id=sucursal_santiago.id
+        )
+        db.session.add(admin_santiago)
+
+        db.session.commit()
+        
+        return jsonify({
+            "admin_viña": {
+                "email": "admin@ferremas.cl",
+                "password": "admin123",
+                "sucursal": sucursal_viña.nombre
+            },
+            "admin_santiago": {
+                "email": "admin.santiago@ferremas.cl",
+                "password": "santiago123",
+                "sucursal": sucursal_santiago.nombre
+            },
+            "message": "Usuarios admin creados correctamente"
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return f"Error al crear usuarios: {str(e)}", 500
 
 @app.route('/contacto', methods=['GET', 'POST'])
 def contacto():
