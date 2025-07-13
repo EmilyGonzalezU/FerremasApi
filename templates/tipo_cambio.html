@@ -176,14 +176,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="last-update">
-                                <i class="fas fa-info-circle me-1"></i> 
-                                {% if dolar is not none %}
-                                Actualizado: {{ datetime.now().strftime('%d/%m/%Y %H:%M') }}
-                                {% else %}
-                                Último intento: {{ datetime.now().strftime('%d/%m/%Y %H:%M') }}
-                                {% endif %}
-                            </div>
                         </div>
                     </div>
                     
@@ -200,14 +192,6 @@
                                     <div class="currency-value text-danger">No disponible</div>
                                     {% endif %}
                                 </div>
-                            </div>
-                            <div class="last-update">
-                                <i class="fas fa-info-circle me-1"></i> 
-                                {% if euro is not none %}
-                                Actualizado: {{ datetime.now().strftime('%d/%m/%Y %H:%M') }}
-                                {% else %}
-                                Último intento: {{ datetime.now().strftime('%d/%m/%Y %H:%M') }}
-                                {% endif %}
                             </div>
                         </div>
                     </div>
