@@ -53,49 +53,50 @@ def dashboard():
 @login_required
 def agregar_producto():
     if request.method == 'POST':
-        # Verificar si el producto ya existe por código o nombre en la misma sucursal
-        codigo = request.form['codigo']
-        nombre = request.form['nombre']
+        errors = {}
+        form_data = request.form
         
-        producto_existente = Producto.query.filter(
-            (Producto.codigo == codigo) | 
-            (Producto.nombre == nombre),
-            Producto.sucursal_id == current_user.sucursal_id
-        ).first()
+        # Validaciones
+        precio = float(request.form.get('precio', 0))
+        stock = int(request.form.get('stock', 0))
         
-        if producto_existente:
-            # Si el producto existe, mostrar mensaje de error
-            error_msg = "El producto ya existe en esta sucursal."
-            if producto_existente.codigo == codigo:
-                error_msg += f" Código duplicado: {codigo}"
-            else:
-                error_msg += f" Nombre duplicado: {nombre}"
-            
+        if precio <= 0:
+            errors['precio'] = "El precio debe ser mayor que cero"
+        if stock < 0:
+            errors['stock'] = "El stock no puede ser negativo"
+        
+        if errors:
             return render_template('agregar_producto.html', 
-                                error=error_msg,
-                                form_data=request.form)
+                                errors=errors,
+                                form_data=form_data)
         
-        # Si no existe, crear el nuevo producto
-        nuevo = Producto(
-            nombre=nombre,
-            marca=request.form['marca'],
-            categoria=request.form['categoria'],
-            codigo=codigo,
-            precio=float(request.form['precio']),
-            dscto=float(request.form['dscto'] or 0),
-            precio_anterior=float(request.form['precio_anterior'] or 0),
-            descripcion=request.form['descripcion'],
-            imagen=request.form['imagen'],
-            stock=request.form.get('stock', 0),
-            sucursal_id=current_user.sucursal_id
-        )
-        
-        db.session.add(nuevo)
-        db.session.commit()
-        return redirect('/home')
+        # Si no hay errores, crear el producto
+        try:
+            nuevo = Producto(
+                nombre=request.form['nombre'],
+                marca=request.form['marca'],
+                categoria=request.form['categoria'],
+                codigo=request.form['codigo'],
+                precio=precio,
+                dscto=float(request.form.get('dscto', 0)),
+                precio_anterior=float(request.form.get('precio_anterior', 0)),
+                descripcion=request.form['descripcion'],
+                imagen=request.form['imagen'],
+                stock=stock,
+                sucursal_id=current_user.sucursal_id
+            )
+            
+            db.session.add(nuevo)
+            db.session.commit()
+            return redirect('/home')
+            
+        except Exception as e:
+            db.session.rollback()
+            return render_template('agregar_producto.html', 
+                                error="Error al guardar el producto: " + str(e),
+                                form_data=form_data)
     
     return render_template('agregar_producto.html')
-
 #editar productos
 @app.route('/producto/editar/<int:codigo_producto>', methods=['GET', 'POST'])
 @login_required

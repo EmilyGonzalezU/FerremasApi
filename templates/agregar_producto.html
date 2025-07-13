@@ -451,9 +451,9 @@
             }
         });
         
-        // Validación del formulario antes de enviar
         document.getElementById('productoForm').addEventListener('submit', function(e) {
             let isValid = true;
+            const errors = {};
             
             // Validar campos requeridos
             const requiredFields = ['nombre', 'categoria', 'codigo', 'precio', 'stock'];
@@ -461,15 +461,8 @@
                 const field = document.getElementById(fieldId);
                 if (!field.value.trim()) {
                     field.classList.add('is-invalid');
+                    errors[fieldId] = 'Este campo es requerido';
                     isValid = false;
-                    
-                    // Crear mensaje de error si no existe
-                    if (!field.nextElementSibling.classList.contains('invalid-feedback')) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'invalid-feedback';
-                        errorDiv.textContent = 'Este campo es requerido';
-                        field.parentNode.insertBefore(errorDiv, field.nextSibling);
-                    }
                 } else {
                     field.classList.remove('is-invalid');
                 }
@@ -479,47 +472,62 @@
             const precio = document.getElementById('precio');
             if (precio.value && parseFloat(precio.value) <= 0) {
                 precio.classList.add('is-invalid');
-                if (!precio.nextElementSibling.classList.contains('invalid-feedback')) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback';
-                    errorDiv.textContent = 'El precio debe ser mayor que cero';
-                    precio.parentNode.insertBefore(errorDiv, precio.nextSibling);
-                }
+                errors['precio'] = 'El precio debe ser mayor que cero';
                 isValid = false;
             }
             
+            // Validar stock no negativo
+            const stock = document.getElementById('stock');
+            if (stock.value && parseInt(stock.value) < 0) {
+                stock.classList.add('is-invalid');
+                errors['stock'] = 'El stock no puede ser negativo';
+                isValid = false;
+            }
+            
+            // Validar descuento entre 0 y 100
+            const dscto = document.getElementById('dscto');
+            if (dscto.value && (parseFloat(dscto.value) < 0 || parseFloat(dscto.value) > 100)) {
+                dscto.classList.add('is-invalid');
+                errors['dscto'] = 'El descuento debe estar entre 0% y 100%';
+                isValid = false;
+            }
+            
+            // Mostrar errores
+            Object.keys(errors).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                let errorDiv = field.nextElementSibling;
+                
+                if (!errorDiv || !errorDiv.classList.contains('invalid-feedback')) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback';
+                    field.parentNode.insertBefore(errorDiv, field.nextSibling);
+                }
+                
+                errorDiv.textContent = errors[fieldId];
+            });
+            
             if (!isValid) {
                 e.preventDefault();
-                
-                // Mostrar alerta general
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger alert-dismissible fade show alert-position';
-                alertDiv.setAttribute('role', 'alert');
-                alertDiv.innerHTML = `
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Por favor complete todos los campos requeridos correctamente.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `;
-                document.body.appendChild(alertDiv);
-                
-                // Desaparecer después de 5 segundos
-                setTimeout(() => {
-                    alertDiv.classList.remove('show');
-                    setTimeout(() => alertDiv.remove(), 150);
-                }, 5000);
+                showAlert('Por favor corrija los errores en el formulario', 'danger');
             }
         });
-        
-        // Auto-ocultar alertas después de 5 segundos
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.classList.remove('show');
-                    setTimeout(() => alert.remove(), 150);
-                }, 5000);
-            });
-        });
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-position`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }, 5000);
+        }
     </script>
 </body>
 </html>
