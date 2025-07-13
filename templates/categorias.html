@@ -231,7 +231,7 @@
                                             <h3 class="category-name">{{ categoria.nombre }}</h3>
                                             <div class="category-count">
                                                 <i class="fas fa-boxes me-1"></i>
-                                                {{ categoria.cantidad_productos || 0 }} productos
+                                                {{ categoria.cantidad_productos | default(0) }} productos
                                             </div>
                                         </div>
                                         <div class="category-actions">

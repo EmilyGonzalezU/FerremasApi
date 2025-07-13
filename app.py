@@ -400,7 +400,7 @@ def contacto():
             db.session.rollback()
             return render_template('mensajes.html', error=f"Error al enviar el mensaje: {str(e)}")
 
-    return render_template('contacto.html')
+    return render_template('mensajes.html')
 
 
 @app.route('/tipo-cambio')
