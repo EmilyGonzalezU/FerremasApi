@@ -150,52 +150,21 @@
             display: none;
         }
         
-        /* Estilos para el menú lateral consistente */
-        .sidebar {
-            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
-            min-height: 100vh;
-            color: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        .is-invalid {
+            border-color: #e74a3b !important;
         }
         
-        .sidebar-brand {
-            height: 4.375rem;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: 600;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            letter-spacing: 0.05rem;
-            z-index: 1;
+        .invalid-feedback {
+            color: #e74a3b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
         }
         
-        .sidebar-divider {
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            margin: 0 1rem 1rem;
-        }
-        
-        .nav-item {
-            position: relative;
-        }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            font-weight: 400;
-        }
-        
-        .nav-link:hover {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav-link i {
-            margin-right: 0.5rem;
-        }
-        
-        .active {
-            color: white !important;
-            font-weight: 500;
+        .alert-position {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -241,6 +210,15 @@
             </div>
             
             <div class="col-md-9 col-lg-10 ms-sm-auto px-md-4 py-4">
+                <!-- Alertas flotantes -->
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show alert-position" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                
                 <div class="container py-1">
                     <div class="row justify-content-center">
                         <div class="col-lg-12">
@@ -255,7 +233,7 @@
                                     </a>
                                 </div>
                                 <div class="card-body">
-                                    <form method="POST" enctype="multipart/form-data">
+                                    <form method="POST" enctype="multipart/form-data" id="productoForm" novalidate>
                                         <div class="form-section">
                                             <h5 class="section-title">
                                                 <i class="fas fa-info-circle me-2"></i>Información Básica
@@ -263,33 +241,58 @@
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="nombre" class="required-field">Nombre del Producto</label>
-                                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                                    <input type="text" class="form-control {% if form_data and 'nombre' in errors %}is-invalid{% endif %}" 
+                                                           id="nombre" name="nombre" value="{{ form_data.nombre if form_data }}" required>
+                                                    {% if form_data and 'nombre' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.nombre }}
+                                                    </div>
+                                                    {% endif %}
                                                     <small class="text-muted">Nombre completo del producto</small>
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label for="marca">Marca</label>
-                                                    <input type="text" class="form-control" id="marca" name="marca">
+                                                    <input type="text" class="form-control" id="marca" name="marca" 
+                                                           value="{{ form_data.marca if form_data }}">
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="categoria">Categoría</label>
-                                                    <select class="form-select" id="categoria" name="categoria">
+                                                    <label for="categoria" class="required-field">Categoría</label>
+                                                    <select class="form-select {% if form_data and 'categoria' in errors %}is-invalid{% endif %}" 
+                                                            id="categoria" name="categoria" required>
                                                         <option value="" selected disabled>Seleccionar categoría</option>
-                                                        <option value="herramientas manuales">Herramientas Manuales</option>
-                                                        <option value="materiales basicos">Materiales Básicos</option>
-                                                        <option value="equipos de seguridad">Equipos de Seguridad</option>
+                                                        <option value="herramientas manuales" {% if form_data and form_data.categoria == 'herramientas manuales' %}selected{% endif %}>
+                                                            Herramientas Manuales
+                                                        </option>
+                                                        <option value="materiales basicos" {% if form_data and form_data.categoria == 'materiales basicos' %}selected{% endif %}>
+                                                            Materiales Básicos
+                                                        </option>
+                                                        <option value="equipos de seguridad" {% if form_data and form_data.categoria == 'equipos de seguridad' %}selected{% endif %}>
+                                                            Equipos de Seguridad
+                                                        </option>
                                                     </select>
+                                                    {% if form_data and 'categoria' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.categoria }}
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="codigo">Código de Producto</label>
-                                                    <input type="text" class="form-control" id="codigo" name="codigo">
+                                                    <label for="codigo" class="required-field">Código de Producto</label>
+                                                    <input type="text" class="form-control {% if form_data and 'codigo' in errors %}is-invalid{% endif %}" 
+                                                           id="codigo" name="codigo" value="{{ form_data.codigo if form_data }}" required>
+                                                    {% if form_data and 'codigo' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.codigo }}
+                                                    </div>
+                                                    {% endif %}
                                                     <small class="text-muted">Código único o SKU</small>
                                                 </div>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="descripcion">Descripción</label>
-                                                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                                <textarea class="form-control" id="descripcion" name="descripcion" rows="3">{{ form_data.descripcion if form_data }}</textarea>
                                             </div>
                                         </div>
 
@@ -302,38 +305,68 @@
                                                     <label for="precio" class="required-field">Precio Actual</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text">$</span>
-                                                        <input type="number" step="0.01" class="form-control" id="precio" name="precio" required>
+                                                        <input type="number" step="0.01" min="0.01" 
+                                                               class="form-control {% if form_data and 'precio' in errors %}is-invalid{% endif %}" 
+                                                               id="precio" name="precio" value="{{ form_data.precio if form_data }}" required>
                                                     </div>
+                                                    {% if form_data and 'precio' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.precio }}
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="dscto">Descuento (%)</label>
                                                     <div class="input-group">
-                                                        <input type="number" step="0.01" class="form-control" id="dscto" name="dscto" min="0" max="100">
+                                                        <input type="number" step="0.01" min="0" max="100" 
+                                                               class="form-control {% if form_data and 'dscto' in errors %}is-invalid{% endif %}" 
+                                                               id="dscto" name="dscto" value="{{ form_data.dscto if form_data }}">
                                                         <span class="input-group-text">%</span>
                                                     </div>
+                                                    {% if form_data and 'dscto' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.dscto }}
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="col-md-4 mb-3">
                                                     <label for="precio_anterior">Precio Anterior</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text">$</span>
-                                                        <input type="number" step="0.01" class="form-control" id="precio_anterior" name="precio_anterior">
+                                                        <input type="number" step="0.01" min="0" 
+                                                               class="form-control {% if form_data and 'precio_anterior' in errors %}is-invalid{% endif %}" 
+                                                               id="precio_anterior" name="precio_anterior" value="{{ form_data.precio_anterior if form_data }}">
                                                     </div>
+                                                    {% if form_data and 'precio_anterior' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.precio_anterior }}
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="stock" class="required-field">Stock Disponible</label>
-                                                    <input type="number" class="form-control" id="stock" name="stock" min="0" required>
+                                                    <input type="number" min="0" 
+                                                           class="form-control {% if form_data and 'stock' in errors %}is-invalid{% endif %}" 
+                                                           id="stock" name="stock" value="{{ form_data.stock if form_data else 0 }}" required>
+                                                    {% if form_data and 'stock' in errors %}
+                                                    <div class="invalid-feedback">
+                                                        {{ errors.stock }}
+                                                    </div>
+                                                    {% endif %}
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label>Estado de Stock</label>
                                                     <div class="form-control bg-light">
                                                         <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="estado_stock" id="disponible" value="disponible" checked>
+                                                            <input class="form-check-input" type="radio" name="estado_stock" id="disponible" 
+                                                                   value="disponible" {% if not form_data or (form_data and form_data.estado_stock == 'disponible') %}checked{% endif %}>
                                                             <label class="form-check-label" for="disponible">Disponible</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="estado_stock" id="agotado" value="agotado">
+                                                            <input class="form-check-input" type="radio" name="estado_stock" id="agotado" 
+                                                                   value="agotado" {% if form_data and form_data.estado_stock == 'agotado' %}checked{% endif %}>
                                                             <label class="form-check-label" for="agotado">Agotado</label>
                                                         </div>
                                                     </div>
@@ -347,7 +380,14 @@
                                             </h5>
                                             <div class="mb-3">
                                                 <label for="imagen">URL de la Imagen</label>
-                                                <input type="url" class="form-control" id="imagen" name="imagen" placeholder="https://ejemplo.com/imagen.jpg">
+                                                <input type="url" class="form-control {% if form_data and 'imagen' in errors %}is-invalid{% endif %}" 
+                                                       id="imagen" name="imagen" value="{{ form_data.imagen if form_data }}" 
+                                                       placeholder="https://ejemplo.com/imagen.jpg">
+                                                {% if form_data and 'imagen' in errors %}
+                                                <div class="invalid-feedback">
+                                                    {{ errors.imagen }}
+                                                </div>
+                                                {% endif %}
                                                 <small class="text-muted">O sube una imagen local</small>
                                             </div>
                                             <div class="mb-3">
@@ -356,6 +396,9 @@
                                             </div>
                                             <div class="text-center">
                                                 <img id="imagePreview" src="#" alt="Vista previa de la imagen" class="preview-image">
+                                                {% if form_data and form_data.imagen %}
+                                                <img src="{{ form_data.imagen }}" alt="Imagen actual" class="preview-image" style="display: block;">
+                                                {% endif %}
                                             </div>
                                         </div>
 
@@ -386,6 +429,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script>
+        // Vista previa de imagen
         document.getElementById('imagen_local').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -398,12 +442,83 @@
             }
         });
         
+        // Validación de descuento
         document.getElementById('dscto').addEventListener('change', function() {
             if (this.value > 100) {
                 this.value = 100;
             } else if (this.value < 0) {
                 this.value = 0;
             }
+        });
+        
+        // Validación del formulario antes de enviar
+        document.getElementById('productoForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Validar campos requeridos
+            const requiredFields = ['nombre', 'categoria', 'codigo', 'precio', 'stock'];
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    
+                    // Crear mensaje de error si no existe
+                    if (!field.nextElementSibling.classList.contains('invalid-feedback')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.textContent = 'Este campo es requerido';
+                        field.parentNode.insertBefore(errorDiv, field.nextSibling);
+                    }
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            // Validar precio positivo
+            const precio = document.getElementById('precio');
+            if (precio.value && parseFloat(precio.value) <= 0) {
+                precio.classList.add('is-invalid');
+                if (!precio.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback';
+                    errorDiv.textContent = 'El precio debe ser mayor que cero';
+                    precio.parentNode.insertBefore(errorDiv, precio.nextSibling);
+                }
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                
+                // Mostrar alerta general
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show alert-position';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Por favor complete todos los campos requeridos correctamente.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Desaparecer después de 5 segundos
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }, 5000);
+            }
+        });
+        
+        // Auto-ocultar alertas después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                    setTimeout(() => alert.remove(), 150);
+                }, 5000);
+            });
         });
     </script>
 </body>
